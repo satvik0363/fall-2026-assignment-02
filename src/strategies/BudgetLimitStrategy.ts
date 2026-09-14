@@ -19,6 +19,7 @@ export class BudgetLimitStrategy implements AuditStrategy {
     const expenses = transactions.filter((transaction) => transaction.amount < 0);
 
     // 3. Compare spending against the fetched limits.
+    const limits = 
     // 4. Identify overages (categories where spending exceeds the budget).
     // 5. Format and return a text-based audit report outlining limits, actuals, overage amounts, percentages, and lists of transactions causing the overage.
 
