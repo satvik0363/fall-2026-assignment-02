@@ -79,8 +79,8 @@ describe('TrendAnalysisStrategy (Feature 3)', () => {
     const result = await strategy.execute(testTransactions);
 
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(result).toContain('+25.0%'); // Food: (250-200)/200 = +25%
-    expect(result).toContain('+0.0%'); // Rent: (1000-1000)/1000 = 0%
+    expect(result).toContain('+25.0%');
+    expect(result).toContain('+0.0%');
   });
 
   it('should highlight categories exceeding positive/negative 20% variance threshold', async () => {
@@ -93,7 +93,7 @@ describe('TrendAnalysisStrategy (Feature 3)', () => {
       {
         id: '1',
         date: '2026-05-01',
-        amount: -300.0, // +50% growth vs 200
+        amount: -300.0,
         category: 'Food',
         description: 'Grocery splurge',
         status: 'completed',
@@ -101,7 +101,7 @@ describe('TrendAnalysisStrategy (Feature 3)', () => {
       {
         id: '2',
         date: '2026-05-02',
-        amount: -50.0, // -50% savings vs 100
+        amount: -50.0,
         category: 'Entertainment',
         description: 'Minimal spending',
         status: 'completed',
@@ -138,7 +138,6 @@ describe('TrendAnalysisStrategy (Feature 3)', () => {
     expect(result).toContain('Pets');
     expect(result).toContain('Historical Avg: N/A');
     expect(result).toContain('Change: N/A');
-    // A category with no historical benchmark should never be flagged as significant.
     const growthSection = result.split('Significant Growth Categories')[1];
     expect(growthSection).not.toContain('Pets');
   });

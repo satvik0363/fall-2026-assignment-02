@@ -16,7 +16,6 @@ export class TrendAnalysisStrategy implements AuditStrategy {
     const historicalAverages =
       await HistoricalDataService.getHistoricalAverages();
 
-    // Group current expenses (amount < 0) by category and compute totals.
     const currentSpending: Record<string, number> = {};
     for (const transaction of transactions) {
       if (transaction.amount < 0) {
