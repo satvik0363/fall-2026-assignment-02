@@ -11,41 +11,149 @@ describe('TrendAnalysisStrategy (Feature 3)', () => {
     vi.restoreAllMocks();
   });
 
-  // Example of how to write and mock in your tests:
-  //
-  // it('should compute correct spending variances against historical averages', async () => {
-  //   const mockAverages = { Food: 200, Rent: 1000 };
-  //   const spy = vi.spyOn(HistoricalDataService, 'getHistoricalAverages').mockResolvedValue(mockAverages);
-  //
-  //   const testTransactions: Transaction[] = [
-  //     { id: '1', date: '2026-05-01', amount: -250.00, category: 'Food', description: 'Grocery', status: 'completed' }, // +25% change
-  //     { id: '2', date: '2026-05-02', amount: -1000.00, category: 'Rent', description: 'Apartment', status: 'completed' }, // 0% change
-  //   ];
-  //
-  //   const result = await strategy.execute(testTransactions);
-  //
-  //   expect(spy).toHaveBeenCalled();
-  //   expect(result).toContain('+25'); // growth detected
-  //   expect(result).toContain('Food');
-  // });
+  it('should group current expenses by category and compute accurate totals', async () => {
+    const mockAverages = { Food: 200, Rent: 1000 };
+    vi.spyOn(HistoricalDataService, 'getHistoricalAverages').mockResolvedValue(
+      mockAverages,
+    );
 
-  it.todo(
-    'should group current expenses by category and compute accurate totals',
-  );
+    const testTransactions: Transaction[] = [
+      {
+        id: '1',
+        date: '2026-05-01',
+        amount: -100.0,
+        category: 'Food',
+        description: 'Groceries',
+        status: 'completed',
+      },
+      {
+        id: '2',
+        date: '2026-05-02',
+        amount: -150.0,
+        category: 'Food',
+        description: 'Restaurant',
+        status: 'completed',
+      },
+      {
+        id: '3',
+        date: '2026-05-03',
+        amount: 2000.0,
+        category: 'Salary',
+        description: 'Paycheck',
+        status: 'completed',
+      },
+    ];
 
-  it.todo(
-    'should calculate variance percentage from historical averages correctly',
-  );
+    const result = await strategy.execute(testTransactions);
 
-  it.todo(
-    'should highlight categories exceeding positive/negative 20% variance threshold',
-  );
+    expect(result).toContain('Current: $250.00');
+    expect(result).toContain('Food');
+    expect(result).not.toContain('Salary');
+  });
 
-  it.todo(
-    'should handle categories present in current data but missing in historical benchmarks',
-  );
+  it('should calculate variance percentage from historical averages correctly', async () => {
+    const mockAverages = { Food: 200, Rent: 1000 };
+    const spy = vi
+      .spyOn(HistoricalDataService, 'getHistoricalAverages')
+      .mockResolvedValue(mockAverages);
 
-  it.todo(
-    'should format historical vs current comparisons in a readable report',
-  );
+    const testTransactions: Transaction[] = [
+      {
+        id: '1',
+        date: '2026-05-01',
+        amount: -250.0,
+        category: 'Food',
+        description: 'Grocery',
+        status: 'completed',
+      },
+      {
+        id: '2',
+        date: '2026-05-02',
+        amount: -1000.0,
+        category: 'Rent',
+        description: 'Apartment',
+        status: 'completed',
+      },
+    ];
+
+    const result = await strategy.execute(testTransactions);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(result).toContain('+25.0%');
+    expect(result).toContain('+0.0%');
+  });
+
+  it('should highlight categories exceeding positive/negative 20% variance threshold', async () => {
+    const mockAverages = { Food: 200, Entertainment: 100 };
+    vi.spyOn(HistoricalDataService, 'getHistoricalAverages').mockResolvedValue(
+      mockAverages,
+    );
+
+    const testTransactions: Transaction[] = [
+      {
+        id: '1',
+        date: '2026-05-01',
+        amount: -300.0,
+        category: 'Food',
+        description: 'Grocery splurge',
+        status: 'completed',
+      },
+      {
+        id: '2',
+        date: '2026-05-02',
+        amount: -50.0,
+        category: 'Entertainment',
+        description: 'Minimal spending',
+        status: 'completed',
+      },
+    ];
+
+    const result = await strategy.execute(testTransactions);
+
+    expect(result).toContain('Significant Growth Categories');
+    expect(result).toContain('Food');
+    expect(result).toContain('Significant Savings Categories');
+    expect(result).toContain('Entertainment');
+  });
+
+  it('should handle categories present in current data but missing in historical benchmarks', async () => {
+    const mockAverages = { Food: 200 };
+    vi.spyOn(HistoricalDataService, 'getHistoricalAverages').mockResolvedValue(
+      mockAverages,
+    );
+
+    const testTransactions: Transaction[] = [
+      {
+        id: '1',
+        date: '2026-05-01',
+        amount: -75.0,
+        category: 'Pets',
+        description: 'Vet visit',
+        status: 'completed',
+      },
+    ];
+
+    const result = await strategy.execute(testTransactions);
+
+    expect(result).toContain('Pets');
+    expect(result).toContain('Historical Avg: N/A');
+    expect(result).toContain('Change: N/A');
+    const growthSection = result.split('Significant Growth Categories')[1];
+    expect(growthSection).not.toContain('Pets');
+  });
+
+  it('should format historical vs current comparisons in a readable report and handle empty transactions', async () => {
+    vi.spyOn(HistoricalDataService, 'getHistoricalAverages').mockResolvedValue({
+      Food: 200,
+    });
+
+    const result = await strategy.execute([]);
+
+    expect(result).toContain('HISTORICAL TREND AUDIT REPORT');
+    expect(result).toContain('Category Spending Comparison:');
+    expect(result).toContain('Current: $0.00');
+    expect(result).toContain('Significant Growth Categories');
+    expect(result).toContain('Significant Savings Categories');
+    expect(result).toContain('None');
+  });
 });
