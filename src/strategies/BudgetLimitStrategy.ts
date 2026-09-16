@@ -51,7 +51,5 @@ export class BudgetLimitStrategy implements AuditStrategy {
      if (itemizedLines.length === 1) itemizedLines.push('No overage transactions to report!');
 
      return [...summaryLines, '', ...warningLines, '', ...itemizedLines].join('\n');
-
-
   }
 }
