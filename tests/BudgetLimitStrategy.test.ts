@@ -14,7 +14,21 @@ describe('BudgetLimitStrategy (Feature 1)', () => {
   // Example of how to write and mock in your tests:
   //
   // it('should correctly identify categories that are over budget', async () => {
+  
   //   // 1. Mock the BudgetService asynchronously
+
+  it('Should correctly identify categories that are over the budget', async () => ){
+    
+    
+    const mockBudgets = {Food: 100, Rent: 1000};
+    const spy = vi.spyOn(BudgetService, 'getCategoryBudgets').mockResolveValue(mockBudgets);
+
+
+
+
+  }
+  
+
   //   const mockBudgets = { Food: 100, Rent: 1000 };
   //   const spy = vi.spyOn(BudgetService, 'getCategoryBudgets').mockResolvedValue(mockBudgets);
   //
